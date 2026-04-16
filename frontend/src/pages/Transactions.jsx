@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
 import api from '../services/api'
+import { theme, categoryColorOptions } from '../styles/theme'
 
-const CATEGORY_COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f97316', '#eab308', '#22c55e', '#14b8a6', '#3b82f6', '#ef4444', '#06b6d4']
+const c = theme.colors
+const g = theme.gradients
+const sh = theme.shadows
 const EMPTY_TRANSACTION_FORM = { type: 'expense', amount: '', description: '', date: '', category_id: '' }
 
 export default function Transactions() {
@@ -56,6 +59,7 @@ export default function Transactions() {
             if (filters.end) params.append('end', filters.end)
             if (filters.category_id) params.append('category_id', filters.category_id)
             if (filters.type) params.append('type', filters.type)
+
             const queryString = params.toString()
             const { data } = await api.get(queryString ? `/transactions?${queryString}` : '/transactions')
             setTransactions(data)
@@ -81,15 +85,12 @@ export default function Transactions() {
 
     const handleSubmit = async () => {
         setError('')
-        if (!form.amount || !form.date)
-            return setError('Valor e data sao obrigatorios')
+        if (!form.amount || !form.date) return setError('Valor e data sao obrigatorios')
 
         try {
-            if (editingId) {
-                await api.put(`/transactions/${editingId}`, form)
-            } else {
-                await api.post('/transactions', form)
-            }
+            if (editingId) await api.put(`/transactions/${editingId}`, form)
+            else await api.post('/transactions', form)
+
             setShowModal(false)
             setEditingId(null)
             resetTransactionModal()
@@ -117,15 +118,11 @@ export default function Transactions() {
 
     const handleCreateCategory = async () => {
         const name = newCategoryName.trim()
-
         setCategoryError('')
-        if (!name) {
-            setCategoryError('Digite um nome para a nova categoria')
-            return
-        }
+        if (!name) return setCategoryError('Digite um nome para a nova categoria')
 
         setCreatingCategory(true)
-        const randomColor = CATEGORY_COLORS[Math.floor(Math.random() * CATEGORY_COLORS.length)]
+        const randomColor = categoryColorOptions[Math.floor(Math.random() * categoryColorOptions.length)]
 
         try {
             const { data } = await api.post('/categories', { name, color: randomColor })
@@ -133,9 +130,7 @@ export default function Transactions() {
             const createdCategory = updatedCategories.find(category => String(category.id) === String(data.id))
                 || updatedCategories.find(category => category.name === data.name)
 
-            if (createdCategory) {
-                setForm(prev => ({ ...prev, category_id: String(createdCategory.id) }))
-            }
+            if (createdCategory) setForm(prev => ({ ...prev, category_id: String(createdCategory.id) }))
 
             localStorage.setItem('categories:last-update', String(Date.now()))
             setNewCategoryName('')
@@ -165,23 +160,19 @@ export default function Transactions() {
         navigate('/login')
     }
 
-    const fmt = (val) =>
-        Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+    const fmt = (val) => Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
-    if (loading)
-        return <div style={s.loading}>Carregando...</div>
+    if (loading) return <div style={s.loading}>Carregando...</div>
 
     return (
         <div style={s.page}>
-            <div
-                className={`sidebar-overlay ${menuOpen ? 'open' : ''}`}
-                onClick={() => setMenuOpen(false)}
-            />
+            <div className={`sidebar-overlay ${menuOpen ? 'open' : ''}`} onClick={() => setMenuOpen(false)} />
+
             <aside className={`sidebar ${menuOpen ? 'open' : ''}`} style={s.sidebar}>
                 <div className="logo-text" style={s.logo}>CashWise</div>
                 <nav style={s.nav}>
                     <Link className="nav-item" to="/" style={s.navItem}>Dashboard</Link>
-                    <Link className="nav-item" to="/transactions" style={{ ...s.navItem, ...s.navActive }}>Transações</Link>
+                    <Link className="nav-item" to="/transactions" style={{ ...s.navItem, ...s.navActive }}>Transacoes</Link>
                     <Link className="nav-item" to="/categories" style={s.navItem}>Categorias</Link>
                 </nav>
                 <div style={s.sidebarBottom}>
@@ -203,14 +194,13 @@ export default function Transactions() {
                         {menuOpen ? 'X' : '☰'}
                     </button>
                 </div>
+
                 <div className="page-header" style={s.header}>
                     <div>
-                        <h1 style={s.pageTitle}>Transações</h1>
+                        <h1 style={s.pageTitle}>Transacoes</h1>
                         <p style={s.pageSubtitle}>Gerencie suas entradas e saidas</p>
                     </div>
-                    <button className="btn-primary" onClick={openTransactionModal} style={s.addBtn}>
-                        + Nova transação
-                    </button>
+                    <button className="btn-primary" onClick={openTransactionModal} style={s.addBtn}>+ Nova transacao</button>
                 </div>
 
                 <div className="filter-box" style={s.filterBox}>
@@ -231,19 +221,25 @@ export default function Transactions() {
 
                 <div className="content-panel" style={s.section}>
                     {transactions.length === 0 ? (
-                        <div style={s.empty}>Nenhuma transação encontrada.</div>
+                        <div style={s.empty}>Nenhuma transacao encontrada.</div>
                     ) : (
                         transactions.map(transaction => (
                             <div className="transaction-item" key={transaction.id} style={s.item}>
                                 <div className="transaction-left" style={s.itemLeft}>
-                                    <div style={{ ...s.dot, backgroundColor: transaction.type === 'income' ? '#d1fae5' : '#fee2e2', color: transaction.type === 'income' ? '#059669' : '#dc2626' }}>
+                                    <div
+                                        style={{
+                                            ...s.dot,
+                                            backgroundColor: transaction.type === 'income' ? c.successSoft : c.dangerSoft,
+                                            color: transaction.type === 'income' ? c.success : c.danger,
+                                        }}
+                                    >
                                         {transaction.type === 'income' ? '↑' : '↓'}
                                     </div>
                                     <div>
                                         <div style={s.itemDesc}>{transaction.description || 'Sem descricao'}</div>
                                         <div className="transaction-meta" style={s.itemMeta}>
                                             {transaction.category_name && (
-                                                <span style={{ ...s.badge, backgroundColor: transaction.category_color + '22', color: transaction.category_color }}>
+                                                <span style={{ ...s.badge, backgroundColor: `${transaction.category_color}22`, color: transaction.category_color }}>
                                                     {transaction.category_name}
                                                 </span>
                                             )}
@@ -252,7 +248,7 @@ export default function Transactions() {
                                     </div>
                                 </div>
                                 <div className="transaction-right" style={s.itemRight}>
-                                    <div className="transaction-amount" style={{ ...s.amount, color: transaction.type === 'income' ? '#059669' : '#dc2626' }}>
+                                    <div className="transaction-amount" style={{ ...s.amount, color: transaction.type === 'income' ? c.success : c.danger }}>
                                         {transaction.type === 'income' ? '+' : '-'} {fmt(transaction.amount)}
                                     </div>
                                     <div className="item-actions" style={s.actions}>
@@ -269,7 +265,7 @@ export default function Transactions() {
             {showModal && (
                 <div className="modal-overlay" style={s.overlay}>
                     <div className="modal" style={s.modal}>
-                        <h2 style={s.modalTitle}>{editingId ? 'Editar transação' : 'Nova transação'}</h2>
+                        <h2 style={s.modalTitle}>{editingId ? 'Editar transacao' : 'Nova transacao'}</h2>
 
                         {error && <div style={s.error}>Aviso: {error}</div>}
 
@@ -356,30 +352,19 @@ export default function Transactions() {
             {transactionToDelete && (
                 <div className="modal-overlay" style={s.overlay}>
                     <div className="modal" style={s.confirmModal}>
-                        <h2 style={s.modalTitle}>Apagar transação?</h2>
+                        <h2 style={s.modalTitle}>Apagar transacao?</h2>
                         <p style={s.confirmText}>
-                            Você quer mesmo apagar <strong>{transactionToDelete.description || 'esta transacao'}</strong>?
+                            Voce quer mesmo apagar <strong>{transactionToDelete.description || 'esta transacao'}</strong>?
                         </p>
-                        <p style={s.confirmWarning}>Essa ação não pode ser desfeita.</p>
+                        <p style={s.confirmWarning}>Essa acao nao pode ser desfeita.</p>
 
                         <div className="modal-actions" style={s.modalActions}>
-                            <button
-                                className="btn-cancel"
-                                onClick={() => setTransactionToDelete(null)}
-                                disabled={deletingTransaction}
-                                style={s.cancelBtn}
-                            >
-                                Cancelar
-                            </button>
+                            <button className="btn-cancel" onClick={() => setTransactionToDelete(null)} disabled={deletingTransaction} style={s.cancelBtn}>Cancelar</button>
                             <button
                                 className="btn-delete"
                                 onClick={handleDelete}
                                 disabled={deletingTransaction}
-                                style={{
-                                    ...s.confirmDeleteBtn,
-                                    opacity: deletingTransaction ? 0.7 : 1,
-                                    cursor: deletingTransaction ? 'wait' : 'pointer',
-                                }}
+                                style={{ ...s.confirmDeleteBtn, opacity: deletingTransaction ? 0.7 : 1, cursor: deletingTransaction ? 'wait' : 'pointer' }}
                             >
                                 {deletingTransaction ? 'Apagando...' : 'Apagar'}
                             </button>
@@ -391,6 +376,13 @@ export default function Transactions() {
     )
 }
 
+const panel = {
+    background: g.panel,
+    border: `1px solid ${c.border}`,
+    boxShadow: sh.soft,
+    borderRadius: '18px',
+}
+
 const s = {
     loading: {
         display: 'flex',
@@ -398,211 +390,189 @@ const s = {
         justifyContent: 'center',
         height: '100vh',
         fontSize: '1.2rem',
-        color: '#6b7280'
+        color: c.textMuted,
+        background: g.page,
     },
-
     page: {
         display: 'flex',
         minHeight: '100vh',
-        backgroundColor: '#f8fafc',
-        fontFamily: "'Segoe UI', sans-serif"
+        background: g.page,
+        fontFamily: "'Segoe UI', sans-serif",
     },
-
     sidebar: {
         width: '240px',
-        backgroundColor: '#1e1b4b',
-        color: '#fff',
+        background: g.sidebar,
+        color: c.text,
         display: 'flex',
         flexDirection: 'column',
         padding: '1.5rem',
         position: 'fixed',
         height: '100vh',
-        overflowY: 'auto'
+        overflowY: 'auto',
+        borderRight: `1px solid ${c.border}`,
+        boxShadow: sh.panel,
     },
-
     logo: {
         fontSize: '1.4rem',
         fontWeight: '800',
         marginBottom: '2rem',
-        color: '#a5b4fc'
+        color: c.primaryBright,
     },
-
     nav: {
         display: 'flex',
         flexDirection: 'column',
         gap: '0.5rem',
-        flex: 1
+        flex: 1,
     },
-
     navItem: {
         padding: '10px 14px',
-        borderRadius: '10px',
-        color: '#c7d2fe',
+        borderRadius: '12px',
+        color: c.textSoft,
         textDecoration: 'none',
         fontSize: '0.95rem',
-        fontWeight: '500'
+        fontWeight: '500',
     },
-
     navActive: {
-        backgroundColor: '#6366f1',
-        color: '#fff'
+        backgroundColor: c.primarySoft,
+        color: c.white,
+        border: `1px solid ${c.borderStrong}`,
     },
-
     sidebarBottom: {
-        borderTop: '1px solid #312e81',
-        paddingTop: '1rem'
+        borderTop: `1px solid ${c.border}`,
+        paddingTop: '1rem',
     },
-
     userInfo: {
         display: 'flex',
         alignItems: 'center',
         gap: '10px',
-        marginBottom: '1rem'
+        marginBottom: '1rem',
     },
-
     avatar: {
         width: '38px',
         height: '38px',
         borderRadius: '50%',
-        backgroundColor: '#6366f1',
+        background: g.button,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontWeight: '700'
+        fontWeight: '700',
     },
-
     userName: {
         fontSize: '0.9rem',
-        fontWeight: '600'
+        fontWeight: '600',
     },
-
     userEmail: {
         fontSize: '0.75rem',
-        color: '#a5b4fc'
+        color: c.textMuted,
     },
-
     logoutBtn: {
         width: '100%',
         padding: '8px',
         backgroundColor: 'transparent',
-        border: '1px solid #4338ca',
-        color: '#a5b4fc',
-        borderRadius: '8px',
+        border: `1px solid ${c.borderStrong}`,
+        color: c.primaryBright,
+        borderRadius: '10px',
         cursor: 'pointer',
         fontSize: '0.9rem',
-        marginTop: '0.5rem'
+        marginTop: '0.5rem',
     },
-
     main: {
         marginLeft: '240px',
         flex: 1,
         padding: '2rem',
-        minWidth: 0
+        minWidth: 0,
     },
-
     header: {
+        ...panel,
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '2rem'
+        marginBottom: '2rem',
+        padding: '1.4rem',
     },
-
     pageTitle: {
         fontSize: '1.8rem',
         fontWeight: '700',
-        color: '#1e1b4b',
-        margin: 0
+        color: c.text,
+        margin: 0,
     },
-
     pageSubtitle: {
-        color: '#6b7280',
+        color: c.textMuted,
         margin: '4px 0 0',
-        fontSize: '0.95rem'
+        fontSize: '0.95rem',
     },
-
     addBtn: {
         padding: '10px 20px',
-        background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-        color: '#fff',
+        background: g.button,
+        color: c.white,
         border: 'none',
-        borderRadius: '10px',
+        borderRadius: '12px',
         fontWeight: '600',
         fontSize: '0.95rem',
-        cursor: 'pointer'
+        cursor: 'pointer',
+        boxShadow: sh.glow,
     },
-
     filterBox: {
+        ...panel,
         display: 'flex',
         gap: '0.8rem',
         marginBottom: '1.5rem',
         flexWrap: 'wrap',
-        backgroundColor: '#fff',
         padding: '1rem',
-        borderRadius: '12px',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.06)'
     },
-
     filterInput: {
-        padding: '8px 12px',
-        borderRadius: '8px',
-        border: '1.5px solid #e5e7eb',
+        padding: '10px 12px',
+        borderRadius: '10px',
+        border: `1.5px solid ${c.border}`,
         fontSize: '0.9rem',
         outline: 'none',
-        backgroundColor: '#f9fafb',
-        color: '#111827'
+        backgroundColor: c.bgSoft,
+        color: c.text,
     },
-
     filterBtn: {
         padding: '8px 16px',
-        backgroundColor: '#6366f1',
-        color: '#fff',
+        background: g.button,
+        color: c.white,
         border: 'none',
-        borderRadius: '8px',
+        borderRadius: '10px',
         cursor: 'pointer',
-        fontWeight: '600'
+        fontWeight: '600',
     },
-
     clearBtn: {
         padding: '8px 16px',
-        backgroundColor: '#f3f4f6',
-        color: '#374151',
-        border: 'none',
-        borderRadius: '8px',
+        backgroundColor: c.bgSoft,
+        color: c.textSoft,
+        border: `1px solid ${c.border}`,
+        borderRadius: '10px',
         cursor: 'pointer',
-        fontWeight: '600'
+        fontWeight: '600',
     },
-
     section: {
-        backgroundColor: '#fff',
-        borderRadius: '12px',
+        ...panel,
         padding: '1rem',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
         display: 'flex',
         flexDirection: 'column',
-        gap: '0.8rem'
+        gap: '0.8rem',
     },
-
     empty: {
         textAlign: 'center',
         padding: '2rem',
-        color: '#6b7280'
+        color: c.textMuted,
     },
-
     item: {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: '12px',
-        borderRadius: '10px',
-        backgroundColor: '#f8fafc'
+        borderRadius: '14px',
+        backgroundColor: c.bgSoft,
+        border: `1px solid ${c.border}`,
     },
-
     itemLeft: {
         display: 'flex',
         alignItems: 'center',
-        gap: '12px'
+        gap: '12px',
     },
-
     dot: {
         width: '36px',
         height: '36px',
@@ -610,243 +580,221 @@ const s = {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontWeight: '700'
+        fontWeight: '700',
     },
-
     itemDesc: {
         fontSize: '0.95rem',
         fontWeight: '600',
-        color: '#1e1b4b'
+        color: c.text,
     },
-
     itemMeta: {
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
-        marginTop: '4px'
+        marginTop: '4px',
     },
-
     badge: {
         padding: '2px 8px',
         borderRadius: '20px',
         fontSize: '0.75rem',
-        fontWeight: '600'
+        fontWeight: '600',
     },
-
     itemDate: {
         fontSize: '0.8rem',
-        color: '#9ca3af'
+        color: c.textMuted,
     },
-
     itemRight: {
         display: 'flex',
         alignItems: 'center',
-        gap: '1rem'
+        gap: '1rem',
     },
-
     amount: {
         fontSize: '1rem',
-        fontWeight: '700'
+        fontWeight: '700',
     },
-
     actions: {
         display: 'flex',
-        gap: '0.5rem'
+        gap: '0.5rem',
     },
-
     editBtn: {
-        background: 'none',
-        border: 'none',
+        padding: '8px 12px',
+        background: g.buttonAlt,
+        border: `1px solid ${c.borderStrong}`,
+        color: c.primaryBright,
         cursor: 'pointer',
-        fontSize: '1rem'
+        fontSize: '0.85rem',
+        borderRadius: '10px',
+        fontWeight: '700',
     },
-
     deleteBtn: {
-        background: 'none',
-        border: 'none',
+        padding: '8px 12px',
+        backgroundColor: c.dangerSoft,
+        border: '1px solid rgba(239, 68, 68, 0.35)',
+        color: '#fecaca',
         cursor: 'pointer',
-        fontSize: '1rem'
+        fontSize: '0.85rem',
+        borderRadius: '10px',
+        fontWeight: '700',
     },
-
     overlay: {
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: c.overlay,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 1000
+        zIndex: 1000,
     },
-
     modal: {
-        backgroundColor: '#fff',
-        borderRadius: '16px',
+        background: g.panel,
+        borderRadius: '20px',
         padding: '2rem',
         width: '100%',
         maxWidth: '500px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.2)'
+        boxShadow: sh.panel,
+        border: `1px solid ${c.border}`,
     },
-
     confirmModal: {
-        backgroundColor: '#fff',
-        borderRadius: '16px',
+        background: g.panel,
+        borderRadius: '20px',
         padding: '2rem',
         width: '100%',
         maxWidth: '420px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.2)'
+        boxShadow: sh.panel,
+        border: `1px solid ${c.border}`,
     },
-
     modalTitle: {
         fontSize: '1.3rem',
         fontWeight: '700',
-        color: '#1e1b4b',
-        marginBottom: '1.5rem'
+        color: c.text,
+        marginBottom: '1.5rem',
     },
-
     error: {
-        backgroundColor: '#fef2f2',
-        color: '#dc2626',
-        border: '1px solid #fecaca',
+        backgroundColor: c.dangerSoft,
+        color: '#fecaca',
+        border: '1px solid rgba(239, 68, 68, 0.35)',
         padding: '10px 14px',
-        borderRadius: '8px',
+        borderRadius: '10px',
         marginBottom: '1rem',
-        fontSize: '0.9rem'
+        fontSize: '0.9rem',
     },
-
     formGrid: {
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
         gap: '1rem',
-        marginBottom: '1.5rem'
+        marginBottom: '1.5rem',
     },
-
     field: {
         display: 'flex',
         flexDirection: 'column',
-        gap: '6px'
+        gap: '6px',
     },
-
     label: {
-        fontSize: '0.85rem',
-        fontWeight: '600',
-        color: '#374151',
+        fontSize: '0.82rem',
+        fontWeight: '700',
+        color: c.textSoft,
         textTransform: 'uppercase',
-        letterSpacing: '0.5px'
+        letterSpacing: '0.08em',
     },
-
     input: {
         padding: '10px 12px',
-        borderRadius: '8px',
-        border: '1.5px solid #e5e7eb',
+        borderRadius: '10px',
+        border: `1.5px solid ${c.border}`,
         fontSize: '0.95rem',
         outline: 'none',
-        backgroundColor: '#f9fafb',
-        color: '#111827'
+        backgroundColor: c.bgSoft,
+        color: c.text,
     },
-
     categoryFieldWrap: {
         display: 'flex',
         flexDirection: 'column',
         gap: '0.6rem',
     },
-
     categorySelectRow: {
         display: 'flex',
         gap: '0.6rem',
         alignItems: 'stretch',
         flexWrap: 'wrap',
     },
-
     categorySelect: {
         flex: 1,
         minWidth: '220px',
     },
-
     inlineCategoryBtn: {
         padding: '10px 14px',
-        borderRadius: '8px',
-        border: '1.5px solid #c7d2fe',
-        backgroundColor: '#eef2ff',
-        color: '#4338ca',
+        borderRadius: '10px',
+        border: `1px solid ${c.borderStrong}`,
+        background: g.buttonAlt,
+        color: c.primaryBright,
         fontWeight: '600',
         cursor: 'pointer',
         whiteSpace: 'nowrap',
     },
-
     inlineCategoryCreator: {
         display: 'flex',
         gap: '0.6rem',
         alignItems: 'center',
         flexWrap: 'wrap',
     },
-
     createCategoryBtn: {
         padding: '10px 14px',
-        borderRadius: '8px',
+        borderRadius: '10px',
         border: 'none',
-        backgroundColor: '#1d4ed8',
-        color: '#fff',
+        background: g.button,
+        color: c.white,
         fontWeight: '600',
         whiteSpace: 'nowrap',
     },
-
     helperText: {
         fontSize: '0.8rem',
-        color: '#6b7280',
+        color: c.textMuted,
     },
-
     helperError: {
         fontSize: '0.8rem',
-        color: '#dc2626',
+        color: '#fecaca',
         fontWeight: '600',
     },
-
     confirmText: {
         fontSize: '0.98rem',
-        color: '#374151',
+        color: c.textSoft,
         margin: '0 0 0.75rem',
         lineHeight: 1.5,
     },
-
     confirmWarning: {
         fontSize: '0.85rem',
-        color: '#dc2626',
+        color: '#fecaca',
         fontWeight: '600',
         margin: '0 0 1.5rem',
     },
-
     modalActions: {
         display: 'flex',
         gap: '1rem',
-        justifyContent: 'flex-end'
+        justifyContent: 'flex-end',
     },
-
     cancelBtn: {
         padding: '10px 20px',
-        backgroundColor: '#f3f4f6',
-        color: '#374151',
-        border: 'none',
-        borderRadius: '8px',
+        backgroundColor: c.bgSoft,
+        color: c.textSoft,
+        border: `1px solid ${c.border}`,
+        borderRadius: '10px',
         cursor: 'pointer',
-        fontWeight: '600'
+        fontWeight: '600',
     },
-
     saveBtn: {
         padding: '10px 20px',
-        background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-        color: '#fff',
+        background: g.button,
+        color: c.white,
         border: 'none',
-        borderRadius: '8px',
+        borderRadius: '10px',
         cursor: 'pointer',
-        fontWeight: '600'
+        fontWeight: '600',
     },
-
     confirmDeleteBtn: {
         padding: '10px 20px',
-        backgroundColor: '#dc2626',
-        color: '#fff',
+        backgroundColor: c.danger,
+        color: c.white,
         border: 'none',
-        borderRadius: '8px',
+        borderRadius: '10px',
         fontWeight: '600',
     },
 }

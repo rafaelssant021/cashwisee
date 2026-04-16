@@ -24,25 +24,6 @@ export default function App(){
           <Route path="/categories" element={<PrivateRoute><Categories /></PrivateRoute>} />
         </Routes>
       </main>
-
-      <footer className="app-footer">
-        <div className="app-footer-signature">
-          <span className="app-footer-label">Desenvolvido por</span>
-          <strong>Rafael Santos</strong>
-        </div>
-        <div className="app-footer-links">
-          <a href="https://github.com/rafaelssant021" target="_blank" rel="noreferrer">
-            GitHub
-          </a>
-          <a
-            href="https://www.linkedin.com/in/rafael-santos-silva-1ba32538a/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            LinkedIn
-          </a>
-        </div>
-      </footer>
     </div>
   )
 }
