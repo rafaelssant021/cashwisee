@@ -107,7 +107,7 @@ export default function Dashboard() {
 
                 <div className="page-header" style={s.header}>
                     <div>
-                        <h1 style={s.pageTitle}>Dashboard</h1>
+                        <h1 style={s.pageTitle}>Olá, {user?.name}</h1>
                         <p style={s.pageSubtitle}>Visao geral das suas financas</p>
                     </div>
                     <Link className="btn-primary" to="/transactions" style={s.addBtn}>+ Nova transacao</Link>
