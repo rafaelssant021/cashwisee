@@ -18,7 +18,7 @@ O **CashWise** é uma plataforma de gestão financeira pessoal projetada para of
 
 ---
 
-## 📸 Screenshots:
+## Screenshots:
 
 ### Login
 <img src="https://github.com/user-attachments/assets/9ec2f71a-37ab-494b-9831-a3972747eb2f" width="100%" alt="logincashwise" />
