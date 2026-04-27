@@ -44,13 +44,13 @@ export default function Register() {
                 <div className="auth-brand" style={s.brand}>
                     <div style={s.badge}>Nova identidade visual</div>
                     <h1 className="auth-brand-name" style={s.brandName}>CashWise</h1>
-                    <p className="auth-brand-sub" style={s.brandSub}>Monte sua base financeira em um ambiente escuro com azul em destaque.</p>
+                    <p className="auth-brand-sub" style={s.brandSub}>Monte sua base financeira em um ambiente escuro, elegante e organizado.</p>
                 </div>
                 <div className="auth-features" style={s.features}>
                     {[
                         'Comece em menos de 1 minuto',
                         'Seus dados seguros e organizados',
-                        'Visualize seus gastos em graficos',
+                        'Visualize seus gastos em gráficos',
                         'Metas e categorias personalizadas',
                     ].map(feature => (
                         <div className="auth-feature" key={feature} style={s.feature}>{feature}</div>
@@ -64,8 +64,8 @@ export default function Register() {
                     <p style={{ ...s.brandSub, textAlign: 'center', marginBottom: '2rem' }}>
                         Controle financeiro inteligente com foco, contraste e clareza.
                     </p>
-                    <h2 style={s.title}>Criar conta gratis</h2>
-                    <p style={s.subtitle}>Preencha os campos abaixo para comecar.</p>
+                    <h2 style={s.title}>Criar conta grátis</h2>
+                    <p style={s.subtitle}>Preencha os campos abaixo para começar.</p>
 
                     {error && <div style={s.error}>Aviso: {error}</div>}
 
@@ -101,7 +101,7 @@ export default function Register() {
                                 value={password}
                                 onChange={e => setPassword(e.target.value)}
                                 style={s.input}
-                                placeholder="Minimo 6 caracteres"
+                                placeholder="Mínimo de 6 caracteres"
                                 required
                             />
                         </div>
@@ -126,7 +126,7 @@ export default function Register() {
                     <div style={s.divider}><span style={s.dividerText}>ou</span></div>
 
                     <p style={s.loginText}>
-                        Ja tem uma conta?{' '}
+                        Já tem uma conta?{' '}
                         <Link to="/login" style={s.loginLink}>Entrar agora</Link>
                     </p>
                 </div>

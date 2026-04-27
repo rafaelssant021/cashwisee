@@ -29,18 +29,28 @@ export default function Dashboard() {
 
     const fetchData = async () => {
         try {
-            const [summaryRes, transactionsRes, currencyRes] = await Promise.all([
+            const [summaryResult, transactionsResult, currencyResult] = await Promise.allSettled([
                 api.get('/transactions/summary'),
                 api.get('/transactions'),
                 api.get('/currency'),
             ])
 
-            setSummary(summaryRes.data)
-            setTransactions(transactionsRes.data.slice(0, 5))
-            setCurrency(currencyRes.data)
+            const summaryData = summaryResult.status === 'fulfilled'
+                ? summaryResult.value.data
+                : { total_income: 0, total_expense: 0, balance: 0 }
+            const transactionsData = transactionsResult.status === 'fulfilled' && Array.isArray(transactionsResult.value.data)
+                ? transactionsResult.value.data
+                : []
+            const currencyData = currencyResult.status === 'fulfilled'
+                ? currencyResult.value.data
+                : null
+
+            setSummary(summaryData)
+            setTransactions(transactionsData.slice(0, 5))
+            setCurrency(currencyData)
 
             const expensesByCategory = {}
-            transactionsRes.data.forEach(transaction => {
+            transactionsData.forEach(transaction => {
                 if (transaction.type === 'expense') {
                     const category = transaction.category_name || 'Sem categoria'
                     expensesByCategory[category] = (expensesByCategory[category] || 0) + Number(transaction.amount)
@@ -57,6 +67,8 @@ export default function Dashboard() {
                         borderWidth: 2,
                     }],
                 })
+            } else {
+                setChartData(null)
             }
         } catch (err) {
             console.log(err)
@@ -82,7 +94,7 @@ export default function Dashboard() {
                 <div className="logo-text" style={s.logo}>CashWise</div>
                 <nav style={s.nav}>
                     <Link className="nav-item" to="/" style={{ ...s.navItem, ...s.navActive }}>Dashboard</Link>
-                    <Link className="nav-item" to="/transactions" style={s.navItem}>Transacoes</Link>
+                    <Link className="nav-item" to="/transactions" style={s.navItem}>Transações</Link>
                     <Link className="nav-item" to="/categories" style={s.navItem}>Categorias</Link>
                 </nav>
                 <div style={s.sidebarBottom}>
@@ -108,9 +120,9 @@ export default function Dashboard() {
                 <div className="page-header" style={s.header}>
                     <div>
                         <h1 style={s.pageTitle}>Olá, {user?.name}</h1>
-                        <p style={s.pageSubtitle}>Visao geral das suas financas</p>
+                        <p style={s.pageSubtitle}>Visão geral das suas finanças</p>
                     </div>
-                    <Link className="btn-primary" to="/transactions" style={s.addBtn}>+ Nova transacao</Link>
+                    <Link className="btn-primary" to="/transactions" style={s.addBtn}>+ Nova transação</Link>
                 </div>
 
                 {currency && (
@@ -135,11 +147,11 @@ export default function Dashboard() {
                         </div>
                     </div>
                     <div className="summary-card" style={{ ...s.card, borderTop: `4px solid ${c.success}` }}>
-                        <div style={s.cardLabel}>Total entradas</div>
+                        <div style={s.cardLabel}>Total de entradas</div>
                         <div style={{ ...s.cardValue, color: c.success }}>{fmt(summary?.total_income)}</div>
                     </div>
                     <div className="summary-card" style={{ ...s.card, borderTop: `4px solid ${c.danger}` }}>
-                        <div style={s.cardLabel}>Total saidas</div>
+                        <div style={s.cardLabel}>Total de saídas</div>
                         <div style={{ ...s.cardValue, color: c.danger }}>{fmt(summary?.total_expense)}</div>
                     </div>
                 </div>
@@ -168,14 +180,14 @@ export default function Dashboard() {
 
                 <div className="content-panel" style={s.section}>
                     <div className="section-header" style={s.sectionHeader}>
-                        <h2 style={s.sectionTitle}>Ultimas transacoes</h2>
+                        <h2 style={s.sectionTitle}>Últimas transações</h2>
                         <Link to="/transactions" style={s.seeAll}>Ver todas</Link>
                     </div>
 
                     {transactions.length === 0 ? (
                         <div className="empty-state" style={s.empty}>
-                            <p>Nenhuma transacao ainda.</p>
-                            <Link to="/transactions" style={s.addBtn}>+ Adicionar transacao</Link>
+                            <p>Nenhuma transação por aqui ainda.</p>
+                            <Link to="/transactions" style={s.addBtn}>+ Adicionar transação</Link>
                         </div>
                     ) : (
                         <div style={s.transactionList}>
@@ -192,7 +204,7 @@ export default function Dashboard() {
                                             {transaction.type === 'income' ? '↑' : '↓'}
                                         </div>
                                         <div>
-                                            <div style={s.transactionDesc}>{transaction.description || 'Sem descricao'}</div>
+                                            <div style={s.transactionDesc}>{transaction.description || 'Sem descrição'}</div>
                                             <div className="transaction-meta" style={s.transactionMeta}>
                                                 {transaction.category_name && (
                                                     <span style={{ ...s.badge, backgroundColor: `${transaction.category_color}22`, color: transaction.category_color }}>

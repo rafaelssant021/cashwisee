@@ -56,7 +56,7 @@ export default function Categories() {
 
     const handleSubmit = async () => {
         setError('')
-        if (!form.name) return setError('Nome e obrigatorio')
+        if (!form.name) return setError('Nome é obrigatório')
 
         try {
             if (editingId) await api.put(`/categories/${editingId}`, form)
@@ -78,7 +78,7 @@ export default function Categories() {
     }
 
     const handleDelete = async (id) => {
-        if (!confirm('Deletar essa categoria?')) return
+        if (!confirm('Excluir esta categoria?')) return
         await api.delete(`/categories/${id}`)
         fetchCategories()
     }
@@ -98,7 +98,7 @@ export default function Categories() {
                 <div className="logo-text" style={s.logo}>CashWise</div>
                 <nav style={s.nav}>
                     <Link className="nav-item" to="/" style={s.navItem}>Dashboard</Link>
-                    <Link className="nav-item" to="/transactions" style={s.navItem}>Transacoes</Link>
+                    <Link className="nav-item" to="/transactions" style={s.navItem}>Transações</Link>
                     <Link className="nav-item" to="/categories" style={{ ...s.navItem, ...s.navActive }}>Categorias</Link>
                 </nav>
                 <div style={s.sidebarBottom}>
@@ -124,7 +124,7 @@ export default function Categories() {
                 <div className="page-header" style={s.header}>
                     <div>
                         <h1 style={s.pageTitle}>Categorias</h1>
-                        <p style={s.pageSubtitle}>Organize suas transacoes por categoria</p>
+                        <p style={s.pageSubtitle}>Organize suas transações por categoria</p>
                     </div>
                     <button
                         className="btn-primary"
@@ -154,7 +154,7 @@ export default function Categories() {
                                 </div>
                                 <div className="card-actions" style={s.cardActions}>
                                     <button className="btn-edit" onClick={() => handleEdit(category)} style={s.editBtn}>Editar</button>
-                                    <button className="btn-delete" onClick={() => handleDelete(category.id)} style={s.deleteBtn}>Deletar</button>
+                                    <button className="btn-delete" onClick={() => handleDelete(category.id)} style={s.deleteBtn}>Excluir</button>
                                 </div>
                             </div>
                         ))}
@@ -176,7 +176,7 @@ export default function Categories() {
                                 value={form.name}
                                 onChange={e => setForm({ ...form, name: e.target.value })}
                                 style={s.input}
-                                placeholder="Ex: Alimentacao, Transporte..."
+                                placeholder="Ex.: Alimentação, Transporte..."
                             />
                         </div>
 

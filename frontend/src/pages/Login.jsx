@@ -46,8 +46,8 @@ export default function Login() {
                 </div>
                 <div className="auth-features" style={s.features}>
                     {[
-                        'Dashboard com graficos em tempo real',
-                        'Controle de entradas e saidas',
+                        'Dashboard com gráficos em tempo real',
+                        'Controle de entradas e saídas',
                         'Categorias personalizadas',
                         'Filtros por data e categoria',
                     ].map(feature => (
@@ -100,8 +100,8 @@ export default function Login() {
                     <div style={s.divider}><span style={s.dividerText}>ou</span></div>
 
                     <p style={s.registerText}>
-                        Nao tem uma conta?{' '}
-                        <Link to="/register" style={s.registerLink}>Criar conta gratis</Link>
+                        Não tem uma conta?{' '}
+                        <Link to="/register" style={s.registerLink}>Criar conta grátis</Link>
                     </p>
                 </div>
             </div>

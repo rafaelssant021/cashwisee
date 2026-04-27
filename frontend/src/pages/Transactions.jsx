@@ -85,7 +85,7 @@ export default function Transactions() {
 
     const handleSubmit = async () => {
         setError('')
-        if (!form.amount || !form.date) return setError('Valor e data sao obrigatorios')
+        if (!form.amount || !form.date) return setError('Valor e data são obrigatórios')
 
         try {
             if (editingId) await api.put(`/transactions/${editingId}`, form)
@@ -172,7 +172,7 @@ export default function Transactions() {
                 <div className="logo-text" style={s.logo}>CashWise</div>
                 <nav style={s.nav}>
                     <Link className="nav-item" to="/" style={s.navItem}>Dashboard</Link>
-                    <Link className="nav-item" to="/transactions" style={{ ...s.navItem, ...s.navActive }}>Transacoes</Link>
+                    <Link className="nav-item" to="/transactions" style={{ ...s.navItem, ...s.navActive }}>Transações</Link>
                     <Link className="nav-item" to="/categories" style={s.navItem}>Categorias</Link>
                 </nav>
                 <div style={s.sidebarBottom}>
@@ -197,10 +197,10 @@ export default function Transactions() {
 
                 <div className="page-header" style={s.header}>
                     <div>
-                        <h1 style={s.pageTitle}>Transacoes</h1>
-                        <p style={s.pageSubtitle}>Gerencie suas entradas e saidas</p>
+                        <h1 style={s.pageTitle}>Transações</h1>
+                        <p style={s.pageSubtitle}>Gerencie suas entradas e saídas</p>
                     </div>
-                    <button className="btn-primary" onClick={openTransactionModal} style={s.addBtn}>+ Nova transacao</button>
+                    <button className="btn-primary" onClick={openTransactionModal} style={s.addBtn}>+ Nova transação</button>
                 </div>
 
                 <div className="filter-box" style={s.filterBox}>
@@ -209,10 +209,10 @@ export default function Transactions() {
                     <select className="filter-control" value={filters.type} onChange={e => setFilters({ ...filters, type: e.target.value })} style={s.filterInput}>
                         <option value="">Todos os tipos</option>
                         <option value="income">Entradas</option>
-                        <option value="expense">Saidas</option>
+                        <option value="expense">Saídas</option>
                     </select>
                     <select className="filter-control" value={filters.category_id} onChange={e => setFilters({ ...filters, category_id: e.target.value })} style={s.filterInput}>
-                        <option value="">Todas categorias</option>
+                        <option value="">Todas as categorias</option>
                         {categories.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}
                     </select>
                     <button className="filter-action" onClick={fetchFiltered} style={s.filterBtn}>Filtrar</button>
@@ -221,7 +221,7 @@ export default function Transactions() {
 
                 <div className="content-panel" style={s.section}>
                     {transactions.length === 0 ? (
-                        <div style={s.empty}>Nenhuma transacao encontrada.</div>
+                        <div style={s.empty}>Nenhuma transação encontrada.</div>
                     ) : (
                         transactions.map(transaction => (
                             <div className="transaction-item" key={transaction.id} style={s.item}>
@@ -236,7 +236,7 @@ export default function Transactions() {
                                         {transaction.type === 'income' ? '↑' : '↓'}
                                     </div>
                                     <div>
-                                        <div style={s.itemDesc}>{transaction.description || 'Sem descricao'}</div>
+                                        <div style={s.itemDesc}>{transaction.description || 'Sem descrição'}</div>
                                         <div className="transaction-meta" style={s.itemMeta}>
                                             {transaction.category_name && (
                                                 <span style={{ ...s.badge, backgroundColor: `${transaction.category_color}22`, color: transaction.category_color }}>
@@ -265,7 +265,7 @@ export default function Transactions() {
             {showModal && (
                 <div className="modal-overlay" style={s.overlay}>
                     <div className="modal" style={s.modal}>
-                        <h2 style={s.modalTitle}>{editingId ? 'Editar transacao' : 'Nova transacao'}</h2>
+                        <h2 style={s.modalTitle}>{editingId ? 'Editar transação' : 'Nova transação'}</h2>
 
                         {error && <div style={s.error}>Aviso: {error}</div>}
 
@@ -273,7 +273,7 @@ export default function Transactions() {
                             <div style={s.field}>
                                 <label style={s.label}>Tipo</label>
                                 <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} style={s.input}>
-                                    <option value="expense">Saida</option>
+                                    <option value="expense">Saída</option>
                                     <option value="income">Entrada</option>
                                 </select>
                             </div>
@@ -331,13 +331,13 @@ export default function Transactions() {
 
                                     {categoryError && <div style={s.helperError}>{categoryError}</div>}
                                     {showCategoryCreator && !categoryError && (
-                                        <div style={s.helperText}>A cor da nova categoria sera escolhida automaticamente.</div>
+                                        <div style={s.helperText}>A cor da nova categoria será escolhida automaticamente.</div>
                                     )}
                                 </div>
                             </div>
                             <div className="field-full" style={{ ...s.field, gridColumn: '1 / -1' }}>
-                                <label style={s.label}>Descricao</label>
-                                <input type="text" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} style={s.input} placeholder="Ex: Almoco, Salario..." />
+                                <label style={s.label}>Descrição</label>
+                                <input type="text" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} style={s.input} placeholder="Ex.: Almoço, Salário..." />
                             </div>
                         </div>
 
@@ -352,11 +352,11 @@ export default function Transactions() {
             {transactionToDelete && (
                 <div className="modal-overlay" style={s.overlay}>
                     <div className="modal" style={s.confirmModal}>
-                        <h2 style={s.modalTitle}>Apagar transacao?</h2>
+                        <h2 style={s.modalTitle}>Apagar transação?</h2>
                         <p style={s.confirmText}>
-                            Voce quer mesmo apagar <strong>{transactionToDelete.description || 'esta transacao'}</strong>?
+                            Você quer mesmo apagar <strong>{transactionToDelete.description || 'esta transação'}</strong>?
                         </p>
-                        <p style={s.confirmWarning}>Essa acao nao pode ser desfeita.</p>
+                        <p style={s.confirmWarning}>Essa ação não pode ser desfeita.</p>
 
                         <div className="modal-actions" style={s.modalActions}>
                             <button className="btn-cancel" onClick={() => setTransactionToDelete(null)} disabled={deletingTransaction} style={s.cancelBtn}>Cancelar</button>
