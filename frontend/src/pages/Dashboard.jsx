@@ -11,6 +11,41 @@ ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarEle
 const c = theme.colors
 const g = theme.gradients
 const sh = theme.shadows
+const QUOTES_URL = 'https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL,BTC-BRL'
+
+const formatCurrencyQuotes = (data) => ({
+    USD: {
+        name: 'Dolar',
+        buy: Number(data.USDBRL.bid).toFixed(2),
+        variation: Number(data.USDBRL.pctChange).toFixed(2),
+    },
+    EUR: {
+        name: 'Euro',
+        buy: Number(data.EURBRL.bid).toFixed(2),
+        variation: Number(data.EURBRL.pctChange).toFixed(2),
+    },
+    BTC: {
+        name: 'Bitcoin',
+        buy: Number(data.BTCBRL.bid).toFixed(2),
+        variation: Number(data.BTCBRL.pctChange).toFixed(2),
+    },
+})
+
+const getCurrencyQuotes = async () => {
+    try {
+        const { data } = await api.get('/currency')
+        return data
+    } catch (backendError) {
+        console.warn('Falha ao buscar cotacoes pelo backend, tentando direto na AwesomeAPI.', backendError)
+        const response = await fetch(QUOTES_URL)
+
+        if (!response.ok) {
+            throw new Error('Erro ao buscar cotacoes')
+        }
+
+        return formatCurrencyQuotes(await response.json())
+    }
+}
 
 export default function Dashboard() {
     const [summary, setSummary] = useState(null)
@@ -32,7 +67,7 @@ export default function Dashboard() {
             const [summaryResult, transactionsResult, currencyResult] = await Promise.allSettled([
                 api.get('/transactions/summary'),
                 api.get('/transactions'),
-                api.get('/currency'),
+                getCurrencyQuotes(),
             ])
 
             const summaryData = summaryResult.status === 'fulfilled'
@@ -42,7 +77,7 @@ export default function Dashboard() {
                 ? transactionsResult.value.data
                 : []
             const currencyData = currencyResult.status === 'fulfilled'
-                ? currencyResult.value.data
+                ? currencyResult.value
                 : null
 
             setSummary(summaryData)
