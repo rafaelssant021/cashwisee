@@ -2,6 +2,24 @@ const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+const isDbConnectionError = (err) =>
+    ['ENOTFOUND', 'ECONNREFUSED', 'ETIMEDOUT', 'EAI_AGAIN', 'PROTOCOL_CONNECTION_LOST'].includes(err.code);
+
+const handleAuthError = (res, err, action) => {
+    console.error(`Erro ao ${action}:`, {
+        message: err.message,
+        code: err.code,
+    });
+
+    if (isDbConnectionError(err)) {
+        return res.status(503).json({
+            error: 'Banco de dados indisponivel. Verifique DB_HOST, DB_PORT e se o servico esta ativo.',
+        });
+    }
+
+    return res.status(500).json({error: 'Erro no servidor'});
+};
+
 //parte dos registros
 const register = async (req, res) => {
     const {name, email, password} = req.body;
@@ -31,7 +49,7 @@ const register = async (req, res) => {
 
         res.status(201).json({token, user: {id: result.insertId, name, email}});
     } catch(err){
-        res.status(500).json({error: 'erro no servidor'});
+        handleAuthError(res, err, 'registrar usuario');
     }
 };
 
@@ -62,7 +80,7 @@ const login = async (req, res) => {
 
         res.json({token, user: {id: user.id, name: user.name, email: user.email}});
     } catch (err) {
-        res.status(500).json({error: 'Erro no servidor'});
+        handleAuthError(res, err, 'fazer login');
     }
 };
 
