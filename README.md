@@ -2,8 +2,6 @@
 
 O **CashWise** é uma plataforma de gestão financeira pessoal projetada para oferecer clareza e foco sobre suas finanças. Com uma interface moderna em *dark mode*, o sistema permite o acompanhamento de entradas, saídas, cotações de moedas e distribuição de gastos por categorias.
 
-> **Nota:** Este projeto ainda está em **fase de desenvolvimento**. Algumas funcionalidades estão sendo refinadas e ajustes de interface/UX estão sendo implementados.
-
 ---
 
 ## Funcionalidades Atuais:
